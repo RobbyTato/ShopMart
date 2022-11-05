@@ -6,10 +6,17 @@ import os
 db_name = "database.db"
 
 def check_db_exists():
+    """
+    Checks if the database exists in the current file location
+    :return: True if it exists, False if it doesn't exist.
+    """
     return os.path.exists("./" + db_name)
 
 
 def init_db():
+    """
+    Create the database and puts all the item details in the database.
+    """
     init_items()
     init_users()
     init_orders()
@@ -17,6 +24,9 @@ def init_db():
 
 
 def init_items():
+    """
+    Creates the Item table
+    """
     con = None
     try:
         con = sqlite3.connect(db_name)
@@ -39,11 +49,14 @@ def init_items():
         print(e)
         con.rollback()
     finally:
-        if con:
+        if con:  # if connection is open, close it
             con.close()
 
 
 def init_users():
+    """
+    Creates the Users table
+    """
     con = None
     try:
         con = sqlite3.connect(db_name)
@@ -66,11 +79,14 @@ def init_users():
         print(e)
         con.rollback()
     finally:
-        if con:
+        if con:  # if connection is open, close it
             con.close()
 
 
 def init_orders():
+    """
+    Creates the Orders table
+    """
     con = None
     try:
         con = sqlite3.connect(db_name)
@@ -87,15 +103,26 @@ def init_orders():
         print(e)
         con.rollback()
     finally:
-        if con:
+        if con:  # if connection is open, close it
             con.close()
 
 
 def init_example():
+    """
+    Puts all the item details in the Items table
+    """
     con = None
     try:
         con = sqlite3.connect(db_name)
         cur = con.cursor()
+        # This is the details for every item in the items dictionary
+        # Format for items dict is as follows:
+        # {"Category 1": ((item_id_1, item_name_1, item_price_1, item_image_url_1, item_supplier_1),
+        #               (item_id_2, item_name_2, item_price_2, item_image_url_2, item_supplier_2),
+        #               (...)),
+        #  "Category 2": ((item_id_3, item_name_3, item_price_3, item_image_url_3, item_supplier_3),
+        #               (item_id_4, item_name_4, item_price_4, item_image_url_4, item_supplier_4),
+        #               (...))}
         items = {"Electronics": ((1, "iPhone 13 Pro Max", 3999, "1024362133485539468/unknown.png", "Apple"),
                                  (2, "Samsung Z Fold 4", 6800, "1024362525850079272/unknown.png", "Samsung"),
                                  (3, "MacBook M1", 4599, "1024362761574174772/unknown.png", "Apple"),
@@ -133,7 +160,7 @@ def init_example():
                                 (35, "Mini Fridge 1.7 Cubic Ft.", 480, "1024418401252294666/unknown.png", "BLACK+DECKER"),
                                 (36, "Queen Sized Bed", 910, "1024419066733142066/unknown.png", "ZINUS"))}
         for i in items:
-            for j in items[i]:
+            for j in items[i]:  # insert all the item values into the Items table
                 query = "INSERT INTO Items VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
                 cur.execute(query, (*j, i, random.choices((3, 4, 5), (0.2, 0.2, 0.6), k=1)[0], random.randrange(30000, 100000)))
         cur.close()
@@ -143,12 +170,12 @@ def init_example():
         print(e)
         con.rollback()
     finally:
-        if con:
+        if con:  # if connection is open, close it
             con.close()
 
 
 def fetchall(query, param=None):
-    if not check_db_exists():
+    if not check_db_exists():  # if database doesn't exist, create a new one
         init_db()
     con = None
     result = []
@@ -159,20 +186,20 @@ def fetchall(query, param=None):
             cur.execute(query, param)
         else:
             cur.execute(query)
-        result = cur.fetchall()
+        result = cur.fetchall()  # fetch all results
         cur.close()
     except sqlite3.Error as e:
         print("An unexpected error with sqlite3 has occurred!")
         print(e)
         con.rollback()
     finally:
-        if con:
+        if con:  # if connection is open, close it
             con.close()
         return result
 
 
 def fetchone(query, param=None):
-    if not check_db_exists():
+    if not check_db_exists():  # if database doesn't exist, create a new one
         init_db()
     con = None
     result = []
@@ -183,29 +210,29 @@ def fetchone(query, param=None):
             cur.execute(query, param)
         else:
             cur.execute(query)
-        result = cur.fetchone()
+        result = cur.fetchone()  # fetch only one result
         cur.close()
     except sqlite3.Error as e:
         print("An unexpected error with sqlite3 has occurred!")
         print(e)
         con.rollback()
     finally:
-        if con:
+        if con:  # if connection is open, close it
             con.close()
         return result
 
 
 def execute(query, param=None):
-    if not check_db_exists():
+    if not check_db_exists():  # if database doesn't exist, create a new one
         init_db()
     con = None
     try:
         con = sqlite3.connect(db_name)
         cur = con.cursor()
-        if param:
-            cur.execute(query, param)
+        if param:  # if any parameters are given, use them
+            cur.execute(query, param)  # execute query with parameters
         else:
-            cur.execute(query)
+            cur.execute(query)  # execute query
         cur.close()
         con.commit()
     except sqlite3.Error as e:
@@ -213,10 +240,10 @@ def execute(query, param=None):
         print(e)
         con.rollback()
     finally:
-        if con:
+        if con:  # if connection is open, close it
             con.close()
 
 
 if __name__ == "__main__":
-    if not check_db_exists():
+    if not check_db_exists():  # if database doesn't exist, create a new one
         init_db()
